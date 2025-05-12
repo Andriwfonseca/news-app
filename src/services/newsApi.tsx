@@ -39,7 +39,11 @@ export interface ApiError {
   };
 }
 
-const buildNewsParams = (source: string, page: number = 1): FetchNewsParams => {
+const buildNewsParams = (
+  source: string,
+  page: number = 1,
+  pageSize: number
+): FetchNewsParams => {
   const yesterday = new Date(Date.now() - MILLISECONDS_IN_A_DAY)
     .toISOString()
     .split("T")[0];
@@ -50,7 +54,7 @@ const buildNewsParams = (source: string, page: number = 1): FetchNewsParams => {
     to: yesterday,
     sortBy: "publishedAt",
     apiKey: API_KEY,
-    pageSize: 9,
+    pageSize: pageSize,
     page,
   };
 
@@ -61,9 +65,10 @@ const buildNewsParams = (source: string, page: number = 1): FetchNewsParams => {
 
 export const fetchNews = async (
   source: string,
-  page: number = 1
+  page: number = 1,
+  pageSize: number = 9
 ): Promise<NewsApiResponse> => {
-  const params = buildNewsParams(source, page);
+  const params = buildNewsParams(source, page, pageSize);
 
   try {
     const response: AxiosResponse<NewsApiResponse> = await axios.get(BASE_URL, {
@@ -102,7 +107,7 @@ export const fetchArticleByUrl = async (
   url: string
 ): Promise<Article | null> => {
   try {
-    const firstResponse = await fetchNews("", 1);
+    const firstResponse = await fetchNews("", 1, 100);
     let fetchedArticle = firstResponse.articles.find((a) => a.url === url);
 
     if (fetchedArticle) return fetchedArticle;
