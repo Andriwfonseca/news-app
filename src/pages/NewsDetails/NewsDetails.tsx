@@ -1,9 +1,10 @@
 import { useNavigate, useParams } from "react-router-dom";
 import styles from "./NewsDetails.module.css";
-import type { Article } from "../../interfaces";
+import type { ApiErrorResponse, Article } from "../../interfaces";
 import { useEffect, useState } from "react";
 import { fetchArticleByUrl } from "../../services/newsApi";
 import { Loader } from "../../components/Loader/Loader";
+import { toast } from "react-toastify";
 
 export default function NewsDetails() {
   const { url } = useParams();
@@ -19,7 +20,9 @@ export default function NewsDetails() {
         const fetchedArticle = await fetchArticleByUrl(url || "");
         setArticle(fetchedArticle);
       } catch (err) {
-        console.error("Erro ao buscar a notícia", err);
+        const apiError = err as ApiErrorResponse;
+        const apiMessage = apiError?.message || "Erro ao buscar artigo.";
+        toast.error(apiMessage);
         setArticle(null);
       } finally {
         setLoading(false);

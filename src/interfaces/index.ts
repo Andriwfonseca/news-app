@@ -11,3 +11,7 @@ export interface Article {
   publishedAt: string;
   content: string;
 }
+
+export interface ApiErrorResponse {
+  message: string;
+}

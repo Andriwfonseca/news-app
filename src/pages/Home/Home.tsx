@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import styles from "./Home.module.css";
 import { Loader } from "../../components/Loader/Loader";
 import { Pagination } from "../../components/Pagination/Pagination";
-import type { Article } from "../../interfaces";
+import type { ApiErrorResponse, Article } from "../../interfaces";
 
 interface Source {
   id: string;
@@ -30,7 +30,9 @@ export default function Home() {
         const data = await fetchSources();
         setSources(data);
       } catch (err) {
-        toast.error("Erro ao buscar as fontes.");
+        const apiError = err as ApiErrorResponse;
+        const apiMessage = apiError?.message || "Erro ao buscar as fontes.";
+        toast.error(apiMessage);
         console.error("Erro ao buscar fontes", err);
       }
     };
@@ -46,10 +48,11 @@ export default function Home() {
         const data = await fetchNews(selectedSource, currentPage);
         setArticles(data.articles);
         setTotalResults(data.totalResults);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (err: any) {
-        const apiMessage =
-          err?.response?.data?.message || "Erro ao carregar as notícias.";
+      } catch (err) {
+        const apiError = err as ApiErrorResponse;
+        const apiMessage = apiError?.message || "Erro ao buscar notícias.";
+
+        toast.error(apiMessage);
         toast.error(apiMessage);
         setError(apiMessage);
         setArticles([]);

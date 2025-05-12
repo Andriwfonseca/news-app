@@ -29,6 +29,16 @@ interface NewsApiResponse {
   totalResults: number;
 }
 
+export interface ApiError {
+  response?: {
+    data: {
+      status: string;
+      code: string;
+      message: string;
+    };
+  };
+}
+
 const buildNewsParams = (source: string, page: number = 1): FetchNewsParams => {
   const yesterday = new Date(Date.now() - MILLISECONDS_IN_A_DAY)
     .toISOString()
@@ -61,8 +71,12 @@ export const fetchNews = async (
     });
     return response.data;
   } catch (error) {
-    console.error("Erro ao buscar as notícias:", error);
-    throw new Error("Erro ao buscar as notícias.");
+    const apiError = error as ApiError;
+    console.error("Erro ao buscar notícias:", apiError);
+
+    throw new Error(
+      apiError?.response?.data?.message || "Erro ao buscar notícias."
+    );
   }
 };
 
@@ -75,8 +89,12 @@ export const fetchSources = async (): Promise<
     const response = await axios.get(SOURCES_URL, { params });
     return response.data.sources;
   } catch (error) {
-    console.error("Erro ao buscar fontes", error);
-    throw new Error("Erro ao buscar fontes.");
+    const apiError = error as ApiError;
+    console.error("Erro ao buscar fontes:", apiError);
+
+    throw new Error(
+      apiError?.response?.data?.message || "Erro ao buscar fontes."
+    );
   }
 };
 
@@ -100,7 +118,11 @@ export const fetchArticleByUrl = async (
 
     return null;
   } catch (error) {
-    console.error("Erro ao buscar o artigo", error);
-    return null;
+    const apiError = error as ApiError;
+    console.error("Erro ao buscar artigo:", apiError);
+
+    throw new Error(
+      apiError?.response?.data?.message || "Erro ao buscar artigo."
+    );
   }
 };
